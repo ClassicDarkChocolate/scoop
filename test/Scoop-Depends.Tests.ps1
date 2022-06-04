@@ -69,29 +69,29 @@ Describe 'Package Dependencies' -Tag 'Scoop' {
         BeforeAll {
             Mock Test-HelperInstalled { $false }
             Mock get_config { $true } -ParameterFilter { $name -eq 'MSIEXTRACT_USE_LESSMSI' }
-            Mock Find-Manifest { $null, @{}, $null, $null } -ParameterFilter { $AppName -eq 'lessmsi' }
-            Mock Find-Manifest { $null, @{ url = 'test.msi' }, $null, $null } -ParameterFilter { $AppName -eq '7zip' }
-            Mock Find-Manifest { $null, @{}, $null, $null } -ParameterFilter { $AppName -eq 'innounp' }
+            Mock Get-Manifest { $null, @{}, $null, $null } -ParameterFilter { $AppName -eq 'lessmsi' }
+            Mock Get-Manifest { $null, @{ url = 'test.msi' }, $null, $null } -ParameterFilter { $AppName -eq '7zip' }
+            Mock Get-Manifest { $null, @{}, $null, $null } -ParameterFilter { $AppName -eq 'innounp' }
         }
 
         It 'Resolve install dependencies' {
-            Mock Find-Manifest { $null, @{ url = 'test.7z' }, $null, $null }
+            Mock Get-Manifest { $null, @{ url = 'test.7z' }, $null, $null }
             Get-Dependency -AppName 'test' -Architecture '32bit' | Should -Be @('lessmsi', '7zip', 'test')
-            Mock Find-Manifest { $null, @{ innosetup = $true }, $null, $null }
+            Mock Get-Manifest { $null, @{ innosetup = $true }, $null, $null }
             Get-Dependency -AppName 'test' -Architecture '32bit' | Should -Be @('innounp', 'test')
         }
         It 'Resolve script dependencies' {
-            Mock Find-Manifest { $null, @{ pre_install = 'Expand-7zipArchive ' }, $null, $null }
+            Mock Get-Manifest { $null, @{ pre_install = 'Expand-7zipArchive ' }, $null, $null }
             Get-Dependency -AppName 'test' -Architecture '32bit' | Should -Be @('lessmsi', '7zip', 'test')
         }
         It 'Resolve runtime dependencies' {
-            Mock Find-Manifest { $null, @{}, $null, $null } -ParameterFilter { $AppName -eq 'depends' }
-            Mock Find-Manifest { $null, @{ depends = 'depends' }, $null, $null }
+            Mock Get-Manifest { $null, @{}, $null, $null } -ParameterFilter { $AppName -eq 'depends' }
+            Mock Get-Manifest { $null, @{ depends = 'depends' }, $null, $null }
             Get-Dependency -AppName 'test' -Architecture '32bit' | Should -Be @('depends', 'test')
         }
         It 'Keep bucket name of app' {
-            Mock Find-Manifest { $null, @{}, $null, $null } -ParameterFilter { $AppName -eq 'bucket/depends' }
-            Mock Find-Manifest { $null, @{ depends = 'bucket/depends' }, $null, $null }
+            Mock Get-Manifest { $null, @{}, $null, $null } -ParameterFilter { $AppName -eq 'bucket/depends' }
+            Mock Get-Manifest { $null, @{ depends = 'bucket/depends' }, $null, $null }
             Get-Dependency -AppName 'anotherbucket/test' -Architecture '32bit' | Should -Be @('bucket/depends', 'anotherbucket/test')
         }
     }
